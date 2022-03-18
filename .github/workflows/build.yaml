@@ -1,5 +1,5 @@
 on:
-  workflow_dispatch:
+  pull_request_target:
 
 permissions:
   contents: read
@@ -49,4 +49,6 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: paper-spa/deploy-pages@pr-previews
+        with:
+          preview: true
