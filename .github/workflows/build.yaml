@@ -68,7 +68,22 @@ jobs:
   # switch to a preview for the pull_request_target event
   #
 
+  deploy-preview:
+    if: ${{ github.event_name == 'pull_request_target' }}
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.preview_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: paper-spa/deploy-pages@pr-previews
+        with:
+          preview: true
+
   deploy:
+    if: ${{ github.event_name != 'pull_request_target' }}
     runs-on: ubuntu-latest
     needs: build
     environment:
@@ -78,5 +93,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: paper-spa/deploy-pages@pr-previews
-        with:
-          preview: ${{ github.event_name == 'pull_request_target' }}
