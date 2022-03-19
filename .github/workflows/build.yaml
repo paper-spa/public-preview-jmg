@@ -1,3 +1,16 @@
+#
+# Repository setup
+#
+# 1. (if needed) create a public repository
+# 2. Create a blank (and orphaned) branch in the repository:
+#    $ git checkout --orphan gh-pages
+#    $ git rm -f * && git push -u
+# 3. In your repository settings, lookup the github-pages environment (create it if it is not there), then
+#    under "Deployment branches", select "Protected branches". The "all branches are still allowed to deploy" \\
+#    wording should be displayted.
+# 4. Add your repository as an actor to https://admin.github.com/devtools/feature_flags/pages_preview_deployments
+# 5. Copy this workflow and adjust it for your repository
+
 # Triggers
 # Note: for public repositories accepting forks, pull_request_target is the only safe trigger
 on:
