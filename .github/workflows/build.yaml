@@ -1,0 +1,82 @@
+# Triggers
+# Note: for public repositories accepting forks, pull_request_target is the only safe trigger
+on:
+  pull_request_target:
+  push:
+    branches:
+      - main
+
+# Pages permissions
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+name: Build & Deploy Pages Preview
+
+# Not defined for now
+# concurrency:
+#   group: "pages"
+#   cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      #
+      # Any build steps required to build the static site (Gatsby here)
+      #
+
+      - name: Checkout PR
+        if: ${{ github.event_name == 'pull_request_target' }}
+        uses: actions/checkout@v2
+        with:
+          ref: ${{github.event.pull_request.head.ref}}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
+
+      - name: Checkout
+        if: ${{ github.event_name != 'pull_request_target' }}
+        uses: actions/checkout@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      #
+      # Pages required: create + upload an archive of the static site
+      #
+
+      - name: Archive build output
+        run: "tar --dereference --directory public/ -cvf artifact.tar ."
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: github-pages
+          path: artifact.tar
+
+  #
+  # Pages required: deployment step
+  # switch to a preview for the pull_request_target event
+  #
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: paper-spa/deploy-pages@pr-previews
+        with:
+          preview: ${{ github.event_name == 'pull_request_target' }}
