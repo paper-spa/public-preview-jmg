@@ -27,7 +27,15 @@ jobs:
       # Any build steps required to build the static site (Gatsby here)
       #
 
+      - name: Checkout PR
+        if: ${{ github.event_name == 'pull_request_target' }}
+        uses: actions/checkout@v2
+        with:
+          ref: ${{github.event.pull_request.head.ref}}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
+
       - name: Checkout
+        if: ${{ github.event_name != 'pull_request_target' }}
         uses: actions/checkout@v2
 
       - name: Use Node.js
