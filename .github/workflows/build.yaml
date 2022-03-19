@@ -1,9 +1,12 @@
+# Triggers
+# Note: for public repositories accepting forks, pull_request_target is the only safe trigger
 on:
   pull_request_target:
   push:
     branches:
       - main
 
+# Pages permissions
 permissions:
   contents: read
   pages: write
@@ -11,14 +14,19 @@ permissions:
 
 name: Build & Deploy Pages Preview
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
+# Not defined for now
+# concurrency:
+#   group: "pages"
+#   cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      #
+      # Any build steps required to build the static site (Gatsby here)
+      #
+
       - name: Checkout
         uses: actions/checkout@v2
 
@@ -34,6 +42,10 @@ jobs:
       - name: Build
         run: npm run build
 
+      #
+      # Pages required: create + upload an archive of the static site
+      #
+
       - name: Archive build output
         run: "tar --dereference --directory public/ -cvf artifact.tar ."
 
@@ -42,6 +54,11 @@ jobs:
         with:
           name: github-pages
           path: artifact.tar
+
+  #
+  # Pages required: deployment step
+  # switch to a preview for the pull_request_target event
+  #
 
   deploy:
     runs-on: ubuntu-latest
