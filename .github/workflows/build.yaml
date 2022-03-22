@@ -1,25 +1,22 @@
 #
-# Repository setup
+# Expected repository setup
 #
-# 1. (if needed) create a public repository
-# 2. Create a blank (and orphaned) branch in the repository:
-#    $ git checkout --orphan gh-pages
-#    $ git rm -f * && git push -u
-# 3. In your repository settings, lookup the github-pages environment (create it if it is not there), then
-#    under "Deployment branches", select "Protected branches". The "all branches are still allowed to deploy" \\
-#    wording should be displayted.
-# 4. Add your repository as an actor to https://admin.github.com/devtools/feature_flags/pages_preview_deployments
-# 5. Copy this workflow and adjust it for your repository
+# 1. Pages is enabled and tracking a branch that does not contain anything
+# 2. The `github-pages` environment has been created and is protected (either via the "Selected branches" or "Protected branches" options)
+# 3. The repository is an actor on this feature flag: https://admin.github.com/devtools/feature_flags/pages_preview_deployments
+#
 
+#
 # Triggers
-# Note: for public repositories accepting forks, pull_request_target is the only safe trigger
+# Note: for public repositories accepting forks, pull_request_target is the only safe trigger.
+#
 on:
   pull_request_target:
   push:
     branches:
       - main
 
-# Pages permissions
+# Required: Pages permissions
 permissions:
   contents: read
   pages: write
@@ -27,17 +24,13 @@ permissions:
 
 name: Build & Deploy Pages Preview
 
-# Not defined for now
-# concurrency:
-#   group: "pages"
-#   cancel-in-progress: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+
       #
-      # Any build steps required to build the static site (Gatsby as an example here)
+      # Required: Checkout (current branch OR head reference for PRs)
       #
 
       - name: Checkout PR
@@ -52,6 +45,11 @@ jobs:
         if: ${{ github.event_name != 'pull_request_target' }}
         uses: actions/checkout@v2
 
+      #
+      # Your build steps (for you to customize)
+      # A Gatsby example is provided here.
+      #
+
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
@@ -65,7 +63,7 @@ jobs:
         run: npm run build
 
       #
-      # Pages required: create + upload the static site as an artifact
+      # Required: Pages artifacts creation
       #
 
       - name: Archive build output
@@ -78,8 +76,8 @@ jobs:
           path: artifact.tar
 
   #
-  # Pages required: deployment step
-  # switch to a preview for the pull_request_target event
+  # Required: Deployment of the artifacts
+  # Switch to a preview deployment for the pull_request_target event.
   #
 
   deploy:
@@ -91,6 +89,6 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: paper-spa/deploy-pages@pr-previews
+        uses: paper-spa/deploy-pages@main
         with:
           preview: ${{ github.event_name == 'pull_request_target' }}
