@@ -38,10 +38,10 @@ jobs:
         uses: actions/checkout@v2
         with:
           # For PRs make sure to checkout the PR branch
-          ref: ${{github.event.pull_request.head.ref}}
-          repository: ${{github.event.pull_request.head.repo.full_name}}
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
 
-      - name: Checkout
+      - name: Checkout non-PR
         if: ${{ github.event_name != 'pull_request_target' }}
         uses: actions/checkout@v2
 
@@ -91,4 +91,4 @@ jobs:
         id: deployment
         uses: paper-spa/deploy-pages@main
         with:
-          preview: ${{ github.event_name == 'pull_request_target' }}
+          preview: 'true'
