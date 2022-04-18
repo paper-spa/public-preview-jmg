@@ -27,7 +27,7 @@ jobs:
       #
       # Required: Checkout (current branch)
       #
-      - name: Checkout non-PR
+      - name: Checkout
         uses: actions/checkout@v2
 
       #
