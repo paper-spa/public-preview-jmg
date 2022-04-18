@@ -6,10 +6,6 @@
 # 3. The repository is an actor on this feature flag: https://admin.github.com/devtools/feature_flags/pages_preview_deployments
 #
 
-#
-# Triggers
-# Note: for public repositories accepting forks, pull_request_target is the only safe trigger.
-#
 on:
   push:
     branches:
@@ -65,8 +61,7 @@ jobs:
           path: artifact.tar
 
   #
-  # Required: Deployment of the artifacts
-  # Switch to a preview deployment for the pull_request_target event.
+  # Required: Deployment of the artifacts to production
   #
 
   deploy:
